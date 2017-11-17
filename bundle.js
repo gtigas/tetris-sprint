@@ -194,17 +194,27 @@ class Piece {
     this._blockLocations = this._blockLocations.bind(this)
     this._blockRenderCoords = this._blockRenderCoords.bind(this)
     this._validMove = this._validMove.bind(this)
+    this._invalidRotation = this._invalidRotation.bind(this)
     this.rotate = this.rotate.bind(this)
+    this._setBlocks = this._setBlocks.bind(this)
     this.draw();
   }
 
   rotate(dir){
     if (dir === 'left') {
       this.rotation++
-      this.blocks = __WEBPACK_IMPORTED_MODULE_0__util__["a" /* PIECE_BLOCK_LOCS */][this.type][Math.abs(this.rotation % 4)]
+      this._setBlocks();
+      if (this._invalidRotation()) {
+        this.rotation--
+        this._setBlocks();
+      }
     } else if (dir === 'right') {
       this.rotation--
-      this.blocks = __WEBPACK_IMPORTED_MODULE_0__util__["a" /* PIECE_BLOCK_LOCS */][this.type][Math.abs(this.rotation % 4)]
+      this._setBlocks();
+      if (this._invalidRotation()) {
+        this.rotation++
+        this._setBlocks();
+      }
     }
     this.draw()
   }
@@ -228,6 +238,24 @@ class Piece {
     renderCoords.forEach( block => {
       this.ctx.drawImage(this.img, this.colorOffset , 0, 32, 32, ...block, 32, 32)
     })
+  }
+
+  _invalidRotation(){
+    const blockLocations = this._blockLocations();
+    const inBounds = blockLocations.every( ([row, col]) => (
+      (row >= -1) && (row <= 10)
+    ))
+    if (!inBounds) return true;
+    if (blockLocations.some( ([row,_]) => row === -1)) {
+      this.x++
+    } else if (blockLocations.some( ([row,_]) => row === 10)) {
+      this.x--
+    }
+    return false
+  }
+
+  _setBlocks(){
+    this.blocks = __WEBPACK_IMPORTED_MODULE_0__util__["a" /* PIECE_BLOCK_LOCS */][this.type][Math.abs(this.rotation % 4)]
   }
 
   _getRenderCoords(){
@@ -309,7 +337,7 @@ class Game{
   }
 
   newPiece(){
-    const piece = new __WEBPACK_IMPORTED_MODULE_1__pieces_piece__["a" /* default */]('T',this.ctx, this.blocks, this.board)
+    const piece = new __WEBPACK_IMPORTED_MODULE_1__pieces_piece__["a" /* default */]('I',this.ctx, this.blocks, this.board)
     this.board.addPiece(piece)
     piece.draw();
   }
