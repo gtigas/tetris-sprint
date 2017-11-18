@@ -80,7 +80,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 document.addEventListener("DOMContentLoaded", () =>{
   const game = document.getElementById("game");
-  const ctx = game.getContext("2d");
+  const hold = document.getElementById("hold");
+  const preview1 = document.getElementById("preview1");
+  const preview2 = document.getElementById("preview2");
+  const preview3 = document.getElementById("preview3");
+  const ctx = {};
+  ctx.game = game.getContext("2d");
+  ctx.hold = hold.getContext("2d");
+  ctx.preview1 = preview1.getContext("2d");
+  ctx.preview2 = preview2.getContext("2d");
+  ctx.preview3 = preview3.getContext("2d");
   const blocks = new Image();
   blocks.src = "assets/images/blocks.png"
   blocks.onload = () => {
@@ -389,13 +398,15 @@ class Piece {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__board__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__pieces_piece__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__pieces_preview__ = __webpack_require__(14);
+
 
 
 
 
 class Game{
   constructor(ctx, blocks){
-    this.board = new __WEBPACK_IMPORTED_MODULE_0__board__["a" /* default */](ctx, blocks, this)
+    this.board = new __WEBPACK_IMPORTED_MODULE_0__board__["a" /* default */](ctx.game, blocks, this)
     this.pieceQueue = []
     this.ctx = ctx
     this.blocks = blocks
@@ -405,12 +416,12 @@ class Game{
   }
 
   move(dir){
-    this.ctx.clearRect(0,0, 320, 640)
+    this.ctx.game.clearRect(0,0, 320, 640)
     this.board.movePiece(dir)
   }
 
   rotate(dir){
-    this.ctx.clearRect(0,0, 320, 640)
+    this.ctx.game.clearRect(0,0, 320, 640)
     this.board.rotatePiece(dir)
   }
 
@@ -419,6 +430,22 @@ class Game{
     if (this.pieceQueue.length < 3) {
       this._fillPieceQueue();
     }
+    this._drawPreview();
+  }
+
+  _drawPreview(){
+    const ctx1 = this.ctx.preview1
+    ctx1.clearRect(0,0,128,128)
+    const first = new __WEBPACK_IMPORTED_MODULE_2__pieces_preview__["a" /* default */](ctx1, this.pieceQueue[0])
+    const ctx2 = this.ctx.preview2
+    ctx2.clearRect(0,0,128,128)
+    const second = new __WEBPACK_IMPORTED_MODULE_2__pieces_preview__["a" /* default */](ctx2, this.pieceQueue[1])
+    const ctx3 = this.ctx.preview3
+    ctx3.clearRect(0,0,128,128)
+    const third = new __WEBPACK_IMPORTED_MODULE_2__pieces_preview__["a" /* default */](ctx3, this.pieceQueue[2])
+    first.draw();
+    second.draw();
+    third.draw();
   }
 
   _fillPieceQueue(){
@@ -430,7 +457,7 @@ class Game{
       pieces[i] = temp
     }
     const { ctx, blocks } = this
-    pieces = pieces.map( type => new __WEBPACK_IMPORTED_MODULE_1__pieces_piece__["a" /* default */](type, ctx, blocks, this))
+    pieces = pieces.map( type => new __WEBPACK_IMPORTED_MODULE_1__pieces_piece__["a" /* default */](type, ctx.game, blocks, this))
     this.pieceQueue = this.pieceQueue.concat(pieces)
   }
 }
@@ -534,6 +561,39 @@ class Square {
 }
 
 /* harmony default export */ __webpack_exports__["a"] = (Square);
+
+
+/***/ }),
+/* 14 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util__ = __webpack_require__(12);
+
+
+class PreviewPiece {
+  constructor(ctx, piece){
+    this.ctx = ctx
+    this.blocks = __WEBPACK_IMPORTED_MODULE_0__util__["a" /* PIECE_BLOCK_LOCS */][piece.type][0]
+    this.img = piece.img
+    this.colorOffset = piece.colorOffset
+  }
+
+  draw() {
+    const renderCoords = this._blockRenderCoords();
+    renderCoords.forEach( block => {
+      this.ctx.drawImage(this.img, this.colorOffset , 0, 32, 32, ...block, 32, 32)
+    })
+  }
+
+  _blockRenderCoords(){
+    return this.blocks.map( loc => {
+      return [loc[1] * 32, loc[0] * 32]
+    })
+  }
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (PreviewPiece);
 
 
 /***/ })
