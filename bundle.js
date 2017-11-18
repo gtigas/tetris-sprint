@@ -79,8 +79,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 document.addEventListener("DOMContentLoaded", () =>{
-  const c = document.getElementById("myCanvas");
-  const ctx = c.getContext("2d");
+  const game = document.getElementById("game");
+  const ctx = game.getContext("2d");
   const blocks = new Image();
   blocks.src = "assets/images/blocks.png"
   blocks.onload = () => {
@@ -115,6 +115,7 @@ class Board {
 
   draw() {
     this.currentPiece.draw()
+    this._showPreview()
     const allSquares = [].concat(...this.grid)
     allSquares.forEach( square => {
       if (square === undefined) return;
@@ -132,7 +133,7 @@ class Board {
       case 'right': if (this._validMove(this.currentPiece, 'right'))  { this.currentPiece.move('right')}
         break;
       case 'down':
-        if (this._hitBottomOrPiece()) {
+        if (this._hitBottomOrPiece(this.currentPiece)) {
           this._setPiece()
         } else if (this._validMove(this.currentPiece, 'down'))  {
           this.currentPiece.move('down')
@@ -187,14 +188,25 @@ class Board {
     }
   }
 
+  _showPreview(){
+    const { type, ctx, img, x, rotation } = this.currentPiece
+    const previewPiece = new __WEBPACK_IMPORTED_MODULE_1__pieces_piece__["a" /* default */](type, ctx, img, this, x, rotation)
+    while (!this._hitBottomOrPiece(previewPiece)) {
+      previewPiece.move('down')
+    }
+    this.ctx.globalAlpha= 0.5
+    previewPiece.draw()
+    this.ctx.globalAlpha= 1
+  }
+
   _generateGrid(){
     for (var i = 0; i < 20; i++) {
       this.grid[i] = new Array(10)
     }
   }
 
-  _hitBottomOrPiece() {
-    return this.currentPiece.blocks.some( ([col,row]) => (
+  _hitBottomOrPiece(piece) {
+    return piece.blocks.some( ([col,row]) => (
       (col + 1 === 20) || (this.getSquare([col + 1, row]))
     ))
   }
@@ -325,14 +337,14 @@ const bindKeys = (game) => {
 
 
 class Piece {
-  constructor(type, ctx, img, board) {
+  constructor(type, ctx, img, board , x = 3, rot = 0) {
     this.type = type
     this.ctx = ctx
     this.img = img
     this.board = board
-    this.x = 3
+    this.x = x
     this.y = 0
-    this.rotation = 0
+    this.rotation = rot
     this.blocks = __WEBPACK_IMPORTED_MODULE_0__util__["a" /* PIECE_BLOCK_LOCS */][type][0].map( loc => [this.y + loc[0], this.x + loc[1] ] )
     this.colorOffset = __WEBPACK_IMPORTED_MODULE_0__util__["b" /* PIECE_COLOR_OFFSETS */][type]
     this.move = this.move.bind(this)
