@@ -143,7 +143,23 @@ class Board {
   }
 
   rotatePiece(dir){
-
+    const piece = this.currentPiece
+    if (dir === 'left') {
+      piece.rotation++
+      piece.setBlocks();
+      if (this._invalidRotation()) {
+        piece.rotation--
+        piece.setBlocks();
+      }
+    } else if (dir === 'right') {
+      piece.rotation--
+      piece.setBlocks();
+      if (this._invalidRotation()) {
+        piece.rotation++
+        piece.setBlocks();
+      }
+    }
+    this.draw();
   }
 
   addPiece(piece){
@@ -180,6 +196,20 @@ class Board {
     return this.currentPiece.blocks.some( ([col,row]) => (
       (col + 1 === 20) || (this.getSquare([col + 1, row]))
     ))
+  }
+
+  _invalidRotation(){
+    const blocks = this.currentPiece.blocks
+    const inBounds = blocks.every( ([row, col]) => (
+      (col >= -1) && (col <= 10) && (!this.getSquare([col, row]))
+    ))
+    if (!inBounds) return true;
+    if (blocks.some( ([row,_]) => row === -1)) {
+      this.currentPiece.x++
+    } else if (blocks.some( ([row,_]) => row === 10)) {
+      this.currentPiece.x--
+    }
+    return false
   }
 
   _validMove(piece, dir){
@@ -283,27 +313,7 @@ class Piece {
     this.move = this.move.bind(this)
     this.draw = this.draw.bind(this)
     this._blockRenderCoords = this._blockRenderCoords.bind(this)
-    this._invalidRotation = this._invalidRotation.bind(this)
-    this.rotate = this.rotate.bind(this)
     this.setBlocks = this.setBlocks.bind(this)
-  }
-
-  rotate(dir){
-    if (dir === 'left') {
-      this.rotation++
-      this.setBlocks();
-      if (this._invalidRotation()) {
-        this.rotation--
-        this.setBlocks();
-      }
-    } else if (dir === 'right') {
-      this.rotation--
-      this.setBlocks();
-      if (this._invalidRotation()) {
-        this.rotation++
-        this.setBlocks();
-      }
-    }
   }
 
   move(dir) {
@@ -327,18 +337,6 @@ class Piece {
     })
   }
 
-  _invalidRotation(){
-    const inBounds = this.blocks.every( ([row, col]) => (
-      (row >= -1) && (row <= 10)
-    ))
-    if (!inBounds) return true;
-    if (this.blocks.some( ([row,_]) => row === -1)) {
-      this.x++
-    } else if (this.blocks.some( ([row,_]) => row === 10)) {
-      this.x--
-    }
-    return false
-  }
 
   setBlocks(){
     this.blocks = __WEBPACK_IMPORTED_MODULE_0__util__["a" /* PIECE_BLOCK_LOCS */][this.type]
@@ -387,7 +385,7 @@ class Game{
 
   rotate(dir){
     this.ctx.clearRect(0,0, 320, 640)
-    this.board.currentPiece.rotate(dir)
+    this.board.rotatePiece(dir)
   }
 
 }
