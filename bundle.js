@@ -170,10 +170,6 @@ class Board {
     this.draw();
   }
 
-  addPiece(piece){
-    this.currentPiece = piece
-  }
-
   getSquare([x,y]){
     return this.grid[x][y]
   }
@@ -190,6 +186,7 @@ class Board {
     });
     this._clearLines();
     this.game.sendNewPiece();
+    this.game.swapped = false;
 
   }
 
@@ -289,27 +286,30 @@ const bindKeys = (game) => {
   document.addEventListener("keydown", (e) => {
     switch (e.keyCode) {
       case 37:
-      game.move('left')
-      break;
+        game.move('left')
+        break;
       case 38:
-      game.move('up')
-      break;
+        game.move('up')
+        break;
       case 39:
-      game.move('right')
-      break;
+        game.move('right')
+        break;
       case 40:
-      game.move('down')
-      break;
+        game.move('down')
+        break;
       case 65:
-      if (down) return
-      down = true
-      game.rotate('left')
-      break;
+        if (down) return
+        down = true
+        game.rotate('left')
+        break;
       case 83:
-      if (down) return
-      down = true
-      game.rotate('right')
-      break;
+        if (down) return
+        down = true
+        game.rotate('right')
+        break;
+      case 16:
+        game.holdPiece();
+        break;
     }
   })
 
@@ -410,6 +410,8 @@ class Game{
     this.pieceQueue = []
     this.ctx = ctx
     this.blocks = blocks
+    this.heldPiece = null
+    this.swapped = false
     this._fillPieceQueue();
     this.sendNewPiece();
     this.board.draw();
@@ -425,8 +427,28 @@ class Game{
     this.board.rotatePiece(dir)
   }
 
-  sendNewPiece(){
-    this.board.addPiece(this.pieceQueue.shift())
+  holdPiece(){
+    if (!this.swapped) {
+      if (this.heldPiece) {
+        const piece = this.heldPiece
+        this.heldPiece = this.currentPiece
+        this.currentPiece = piece
+        this._resetPositions();
+        this.board.currentPiece = this.currentPiece
+      } else {
+        this.heldPiece = this.currentPiece
+        this.sendNewPiece();
+      }
+      this.ctx.game.clearRect(0,0, 320, 640)
+      this.board.draw();
+      this._drawHeldPiece();
+      this.swapped = true;
+    }
+  }
+
+  sendNewPiece(arg){
+    this.currentPiece = this.pieceQueue.shift()
+    this.board.currentPiece = this.currentPiece
     if (this.pieceQueue.length < 3) {
       this._fillPieceQueue();
     }
@@ -446,6 +468,20 @@ class Game{
     first.draw();
     second.draw();
     third.draw();
+  }
+
+  _resetPositions(){
+    this.heldPiece.y = 0
+    this.currentPiece.y = 0
+    this.heldPiece.x = 3
+    this.currentPiece.x = 3
+    this.currentPiece.setBlocks();
+  }
+  _drawHeldPiece(){
+    const ctx = this.ctx.hold
+    ctx.clearRect(0,0,128,128)
+    const held = new __WEBPACK_IMPORTED_MODULE_2__pieces_preview__["a" /* default */](ctx, this.heldPiece)
+    held.draw();
   }
 
   _fillPieceQueue(){
