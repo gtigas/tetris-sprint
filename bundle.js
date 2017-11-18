@@ -180,6 +180,7 @@ class Board {
       let square = new __WEBPACK_IMPORTED_MODULE_0__pieces_square__["a" /* default */](type, ctx, img, blockPos)
       this.setSquare(blockPos, square)
     });
+    this._clearLines();
     this.currentPiece = this.pieceQueue.shift();
     if (this.pieceQueue.length < 3) {
       this._fillPieceQueue();
@@ -200,13 +201,13 @@ class Board {
 
   _invalidRotation(){
     const blocks = this.currentPiece.blocks
-    const inBounds = blocks.every( ([row, col]) => (
-      (col >= -1) && (col <= 10) && (!this.getSquare([col, row]))
+    const inBounds = blocks.every( ([col, row]) => (
+      (row >= -1) && (row <= 10) && (!this.getSquare([col, row]))
     ))
     if (!inBounds) return true;
-    if (blocks.some( ([row,_]) => row === -1)) {
+    if (blocks.some( ([_,row]) => row === -1)) {
       this.currentPiece.x++
-    } else if (blocks.some( ([row,_]) => row === 10)) {
+    } else if (blocks.some( ([_,row]) => row === 10)) {
       this.currentPiece.x--
     }
     return false
@@ -230,6 +231,30 @@ class Board {
       ))
         break;
     }
+  }
+
+  _clearLines(){
+    this.grid.forEach( (row, idx)  => {
+      if (this._fullRow(row)) {
+        for (let i = 0; i < idx; i++) {
+          this._shiftSquaresDown(this.grid[i])
+        }
+        this.grid.splice(idx , 1)
+        this.grid.unshift(new Array(10))
+      }
+    });
+  }
+
+  _shiftSquaresDown(row){
+    row.forEach( square => square.pos[0]++)
+  }
+
+  _fullRow(row) {
+    let fullRow = true
+    for (let i = 0; i < row.length; i++) {
+      if (row[i] === undefined) fullRow = false
+    }
+    return fullRow
   }
 
   _fillPieceQueue(){
