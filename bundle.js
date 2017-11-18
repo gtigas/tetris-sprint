@@ -96,20 +96,24 @@ document.addEventListener("DOMContentLoaded", () =>{
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__pieces_square__ = __webpack_require__(13);
+
 
 class Board {
   constructor(ctx) {
     this.ctx = ctx
     this.grid = []
-    this.pieces = []
     this.currentPiece = null
     this._generateGrid();
   }
 
 
   draw() {
-    this.pieces.forEach( piece => {
-      piece.draw();
+    this.currentPiece.draw()
+    const allSquares = [].concat(...this.grid)
+    allSquares.forEach( square => {
+      if (square === undefined) return;
+      square.draw();
     })
   }
 
@@ -119,10 +123,76 @@ class Board {
     }
   }
 
+  movePiece(dir){
+    switch (dir) {
+      case 'left': if (this._validMove(this.currentPiece, 'left')) { this.currentPiece.move('left') }
+        break;
+      case 'up': if (this._validMove(this.currentPiece, 'up'))  { this.currentPiece.move('up') }
+        break;
+      case 'right': if (this._validMove(this.currentPiece, 'right'))  { this.currentPiece.move('right')}
+        break;
+      case 'down':
+        if (this._hitBottomOrPiece()) {
+          this._setPiece()
+        } else if (this._validMove(this.currentPiece, 'down'))  {
+          this.currentPiece.move('down')
+        }
+        break;
+      }
+    this.draw();
+  }
+
+  rotatePiece(dir){
+
+  }
+
   addPiece(piece){
-    this.pieces.push(piece)
     this.currentPiece = piece
   }
+
+  getSquare([x,y]){
+    return this.grid[x][y]
+  }
+
+  setSquare([x,y], mark){
+    this.grid[x][y] = mark
+  }
+
+  _setPiece(){
+    const { type, ctx, img } = this.currentPiece
+    this.currentPiece.blocks.forEach( blockPos => {
+      let square = new __WEBPACK_IMPORTED_MODULE_0__pieces_square__["a" /* default */](type, ctx, img, blockPos)
+      this.setSquare(blockPos, square)
+    });
+    console.log(this.grid)
+  }
+
+  _hitBottomOrPiece() {
+    return this.currentPiece.blocks.some( (pos) => (
+      (this.getSquare(pos)) || (pos[0] + 1 === 20)
+    ))
+  }
+
+  _validMove(piece, dir){
+    switch (dir) {
+      case 'left':
+        return piece.blocks.every( ([_, row]) => (
+          row - 1 >= 0
+        ))
+        break;
+      case 'right':
+        return piece.blocks.every( ([_, row]) => (
+        row + 1 <= 9
+      ))
+        break;
+      case 'down':
+        return piece.blocks.every( ([col, row]) => (
+        col + 1 <= 19
+      ))
+        break;
+    }
+  }
+
 }
 /* harmony default export */ __webpack_exports__["a"] = (Board);
 
@@ -187,50 +257,47 @@ class Piece {
     this.x = 0
     this.y = 0
     this.rotation = 0
-    this.blocks = __WEBPACK_IMPORTED_MODULE_0__util__["a" /* PIECE_BLOCK_LOCS */][type][0]
+    this.blocks = __WEBPACK_IMPORTED_MODULE_0__util__["a" /* PIECE_BLOCK_LOCS */][type][0].map( loc => [this.y + loc[0], this.x + loc[1] ] )
     this.colorOffset = __WEBPACK_IMPORTED_MODULE_0__util__["b" /* PIECE_COLOR_OFFSETS */][type]
     this.move = this.move.bind(this)
     this.draw = this.draw.bind(this)
-    this._blockLocations = this._blockLocations.bind(this)
     this._blockRenderCoords = this._blockRenderCoords.bind(this)
-    this._validMove = this._validMove.bind(this)
     this._invalidRotation = this._invalidRotation.bind(this)
     this.rotate = this.rotate.bind(this)
-    this._setBlocks = this._setBlocks.bind(this)
+    this.setBlocks = this.setBlocks.bind(this)
     this.draw();
   }
 
   rotate(dir){
     if (dir === 'left') {
       this.rotation++
-      this._setBlocks();
+      this.setBlocks();
       if (this._invalidRotation()) {
         this.rotation--
-        this._setBlocks();
+        this.setBlocks();
       }
     } else if (dir === 'right') {
       this.rotation--
-      this._setBlocks();
+      this.setBlocks();
       if (this._invalidRotation()) {
         this.rotation++
-        this._setBlocks();
+        this.setBlocks();
       }
     }
-    this.draw()
   }
 
   move(dir) {
     switch (dir) {
-      case 'left': if (this._validMove('left')) { this.x-- }
+      case 'left': { this.x-- }
         break;
-      case 'up': if (this._validMove('up'))  { this.y-- }
+      case 'up': { this.y-- }
         break;
-      case 'right': if (this._validMove('right'))  { this.x++ }
+      case 'right': { this.x++ }
         break;
-      case 'down': if (this._validMove('down'))  { this.y++ }
+      case 'down': { this.y++ }
         break;
     }
-    this.draw()
+    this.setBlocks();
   }
 
   draw() {
@@ -241,67 +308,35 @@ class Piece {
   }
 
   _invalidRotation(){
-    const blockLocations = this._blockLocations();
-    const inBounds = blockLocations.every( ([row, col]) => (
+    const inBounds = this.blocks.every( ([row, col]) => (
       (row >= -1) && (row <= 10)
     ))
     if (!inBounds) return true;
-    if (blockLocations.some( ([row,_]) => row === -1)) {
+    if (this.blocks.some( ([row,_]) => row === -1)) {
       this.x++
-    } else if (blockLocations.some( ([row,_]) => row === 10)) {
+    } else if (this.blocks.some( ([row,_]) => row === 10)) {
       this.x--
     }
     return false
   }
 
-  _setBlocks(){
-    this.blocks = __WEBPACK_IMPORTED_MODULE_0__util__["a" /* PIECE_BLOCK_LOCS */][this.type][Math.abs(this.rotation % 4)]
+  setBlocks(){
+    this.blocks = __WEBPACK_IMPORTED_MODULE_0__util__["a" /* PIECE_BLOCK_LOCS */][this.type]
+                          [Math.abs(this.rotation % 4)]
+                          .map( loc => [this.y + loc[0], this.x + loc[1] ])
   }
 
   _getRenderCoords(){
     return [this.x * 32, this.y * 32]
   }
 
-  _blockLocations(){
-    const locations = []
-    this.blocks.forEach( loc => {
-      let blockLoc = [this.x + loc[1], this.y + loc[0]]
-      locations.push(blockLoc)
-    });
-    return locations
-  }
 
   _blockRenderCoords(){
-    return this._blockLocations().map( loc => {
-      return [loc[0] * 32, loc[1] * 32]
+    return this.blocks.map( loc => {
+      return [loc[1] * 32, loc[0] * 32]
     })
   }
 
-  _validMove(dir){
-    const blockLocations = this._blockLocations();
-    switch (dir) {
-      case 'left':
-        return blockLocations.every( ([row, _]) => (
-          row - 1 >= 0
-        ))
-        break;
-      case 'up':
-        return blockLocations.every( ([_, col]) => (
-        col - 1 >= 0
-      ))
-        break;
-      case 'right':
-        return blockLocations.every( ([row, _]) => (
-        row + 1 <= 9
-      ))
-        break;
-      case 'down':
-        return blockLocations.every( ([_, col]) => (
-        col + 1 <= 19
-      ))
-        break;
-    }
-  }
 }
 
 /* harmony default export */ __webpack_exports__["a"] = (Piece);
@@ -328,7 +363,7 @@ class Game{
 
   move(dir){
     this.ctx.clearRect(0,0, 320, 640)
-    this.board.currentPiece.move(dir)
+    this.board.movePiece(dir)
   }
 
   rotate(dir){
@@ -416,6 +451,32 @@ const PIECE_BLOCK_LOCS = {
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = PIECE_BLOCK_LOCS;
 
+
+
+/***/ }),
+/* 13 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util__ = __webpack_require__(12);
+
+
+class Square {
+  constructor(type, ctx, img, pos){
+    this.type = type
+    this.ctx = ctx
+    this.img = img
+    this.pos = pos
+    this.colorOffset = __WEBPACK_IMPORTED_MODULE_0__util__["b" /* PIECE_COLOR_OFFSETS */][type]
+  }
+
+  draw() {
+    const renderPos = [this.pos[1] * 32, this.pos[0] * 32]
+    this.ctx.drawImage(this.img, this.colorOffset , 0, 32, 32, ...renderPos, 32, 32)
+  }
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (Square);
 
 
 /***/ })
