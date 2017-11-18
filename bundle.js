@@ -101,15 +101,13 @@ document.addEventListener("DOMContentLoaded", () =>{
 
 
 class Board {
-  constructor(ctx, img) {
+  constructor(ctx, img, game) {
     this.ctx = ctx
     this.img = img
+    this.game = game
     this.grid = []
-    this.pieceQueue = []
     this._generateGrid();
-    this._fillPieceQueue();
-    this.currentPiece = this.pieceQueue.shift()
-    this.draw();
+    this.currentPiece = null
   }
 
 
@@ -182,10 +180,8 @@ class Board {
       this.setSquare(blockPos, square)
     });
     this._clearLines();
-    this.currentPiece = this.pieceQueue.shift();
-    if (this.pieceQueue.length < 3) {
-      this._fillPieceQueue();
-    }
+    this.game.sendNewPiece();
+
   }
 
   _showPreview(){
@@ -269,18 +265,7 @@ class Board {
     return fullRow
   }
 
-  _fillPieceQueue(){
-    let pieces = ['I', 'J', 'L', 'O', 'S', 'Z', 'T']
-    for (var i = 0; i < pieces.length - 1; i++) {
-      let randIdx = Math.floor(Math.random() * (pieces.length -1))
-      let temp = pieces[randIdx]
-      pieces[randIdx] = pieces[i]
-      pieces[i] = temp
-    }
-    const { ctx, img } = this
-    pieces = pieces.map( type => new __WEBPACK_IMPORTED_MODULE_1__pieces_piece__["a" /* default */](type, ctx, img, this))
-    this.pieceQueue = this.pieceQueue.concat(pieces)
-  }
+
 }
 /* harmony default export */ __webpack_exports__["a"] = (Board);
 
@@ -410,9 +395,13 @@ class Piece {
 
 class Game{
   constructor(ctx, blocks){
-    this.board = new __WEBPACK_IMPORTED_MODULE_0__board__["a" /* default */](ctx, blocks)
+    this.board = new __WEBPACK_IMPORTED_MODULE_0__board__["a" /* default */](ctx, blocks, this)
+    this.pieceQueue = []
     this.ctx = ctx
     this.blocks = blocks
+    this._fillPieceQueue();
+    this.sendNewPiece();
+    this.board.draw();
   }
 
   move(dir){
@@ -425,6 +414,25 @@ class Game{
     this.board.rotatePiece(dir)
   }
 
+  sendNewPiece(){
+    this.board.addPiece(this.pieceQueue.shift())
+    if (this.pieceQueue.length < 3) {
+      this._fillPieceQueue();
+    }
+  }
+
+  _fillPieceQueue(){
+    let pieces = ['I', 'J', 'L', 'O', 'S', 'Z', 'T']
+    for (var i = 0; i < pieces.length - 1; i++) {
+      let randIdx = Math.floor(Math.random() * (pieces.length -1))
+      let temp = pieces[randIdx]
+      pieces[randIdx] = pieces[i]
+      pieces[i] = temp
+    }
+    const { ctx, blocks } = this
+    pieces = pieces.map( type => new __WEBPACK_IMPORTED_MODULE_1__pieces_piece__["a" /* default */](type, ctx, blocks, this))
+    this.pieceQueue = this.pieceQueue.concat(pieces)
+  }
 }
 
 /* harmony default export */ __webpack_exports__["a"] = (Game);
