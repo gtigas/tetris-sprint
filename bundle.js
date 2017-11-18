@@ -83,9 +83,8 @@ document.addEventListener("DOMContentLoaded", () =>{
   const ctx = c.getContext("2d");
   const blocks = new Image();
   blocks.src = "assets/images/blocks.png"
-  blocks.onload = () => {    
+  blocks.onload = () => {
     const game = new __WEBPACK_IMPORTED_MODULE_2__game__["a" /* default */](ctx, blocks)
-    game.newPiece();
     Object(__WEBPACK_IMPORTED_MODULE_3__binders__["a" /* default */])(game);
   }
 });
@@ -97,14 +96,20 @@ document.addEventListener("DOMContentLoaded", () =>{
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__pieces_square__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__pieces_piece__ = __webpack_require__(3);
+
 
 
 class Board {
-  constructor(ctx) {
+  constructor(ctx, img) {
     this.ctx = ctx
+    this.img = img
     this.grid = []
-    this.currentPiece = null
+    this.pieceQueue = []
     this._generateGrid();
+    this._fillPieceQueue();
+    this.currentPiece = this.pieceQueue.shift()
+    this.draw();
   }
 
 
@@ -117,11 +122,6 @@ class Board {
     })
   }
 
-  _generateGrid(){
-    for (var i = 0; i < 20; i++) {
-      this.grid[i] = new Array(10)
-    }
-  }
 
   movePiece(dir){
     switch (dir) {
@@ -164,25 +164,34 @@ class Board {
       let square = new __WEBPACK_IMPORTED_MODULE_0__pieces_square__["a" /* default */](type, ctx, img, blockPos)
       this.setSquare(blockPos, square)
     });
-    console.log(this.grid)
+    this.currentPiece = this.pieceQueue.shift();
+    if (this.pieceQueue.length < 3) {
+      this._fillPieceQueue();
+    }
+  }
+
+  _generateGrid(){
+    for (var i = 0; i < 20; i++) {
+      this.grid[i] = new Array(10)
+    }
   }
 
   _hitBottomOrPiece() {
-    return this.currentPiece.blocks.some( (pos) => (
-      (this.getSquare(pos)) || (pos[0] + 1 === 20)
+    return this.currentPiece.blocks.some( ([col,row]) => (
+      (col + 1 === 20) || (this.getSquare([col + 1, row]))
     ))
   }
 
   _validMove(piece, dir){
     switch (dir) {
       case 'left':
-        return piece.blocks.every( ([_, row]) => (
-          row - 1 >= 0
+        return piece.blocks.every( ([col, row]) => (
+          (row - 1 >= 0) && (!this.getSquare([col, row - 1]))
         ))
         break;
       case 'right':
-        return piece.blocks.every( ([_, row]) => (
-        row + 1 <= 9
+        return piece.blocks.every( ([col, row]) => (
+        row + 1 <= 9 && (!this.getSquare([col, row + 1]))
       ))
         break;
       case 'down':
@@ -193,6 +202,18 @@ class Board {
     }
   }
 
+  _fillPieceQueue(){
+    let pieces = ['I', 'J', 'L', 'O', 'S', 'Z', 'T']
+    for (var i = 0; i < pieces.length - 1; i++) {
+      let randIdx = Math.floor(Math.random() * (pieces.length -1))
+      let temp = pieces[randIdx]
+      pieces[randIdx] = pieces[i]
+      pieces[i] = temp
+    }
+    const { ctx, img } = this
+    pieces = pieces.map( type => new __WEBPACK_IMPORTED_MODULE_1__pieces_piece__["a" /* default */](type, ctx, img, this))
+    this.pieceQueue = this.pieceQueue.concat(pieces)
+  }
 }
 /* harmony default export */ __webpack_exports__["a"] = (Board);
 
@@ -254,7 +275,7 @@ class Piece {
     this.ctx = ctx
     this.img = img
     this.board = board
-    this.x = 0
+    this.x = 3
     this.y = 0
     this.rotation = 0
     this.blocks = __WEBPACK_IMPORTED_MODULE_0__util__["a" /* PIECE_BLOCK_LOCS */][type][0].map( loc => [this.y + loc[0], this.x + loc[1] ] )
@@ -265,7 +286,6 @@ class Piece {
     this._invalidRotation = this._invalidRotation.bind(this)
     this.rotate = this.rotate.bind(this)
     this.setBlocks = this.setBlocks.bind(this)
-    this.draw();
   }
 
   rotate(dir){
@@ -355,10 +375,9 @@ class Piece {
 
 class Game{
   constructor(ctx, blocks){
-    this.board = new __WEBPACK_IMPORTED_MODULE_0__board__["a" /* default */]()
+    this.board = new __WEBPACK_IMPORTED_MODULE_0__board__["a" /* default */](ctx, blocks)
     this.ctx = ctx
     this.blocks = blocks
-    this.newPiece = this.newPiece.bind(this)
   }
 
   move(dir){
@@ -371,11 +390,6 @@ class Game{
     this.board.currentPiece.rotate(dir)
   }
 
-  newPiece(){
-    const piece = new __WEBPACK_IMPORTED_MODULE_1__pieces_piece__["a" /* default */]('I',this.ctx, this.blocks, this.board)
-    this.board.addPiece(piece)
-    piece.draw();
-  }
 }
 
 /* harmony default export */ __webpack_exports__["a"] = (Game);
