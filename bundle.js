@@ -130,6 +130,14 @@ class Board {
     })
   }
 
+  hardDrop(){
+    while (!this._hitBottomOrPiece(this.currentPiece)) {
+      this.currentPiece.move('down')
+    }
+    this._setPiece()
+    this.draw();
+  }
+
 
   movePiece(dir){
     switch (dir) {
@@ -285,24 +293,24 @@ const bindKeys = (game) => {
   let down = false
   document.addEventListener("keydown", (e) => {
     switch (e.keyCode) {
-      case 37:
+      case 65:
         game.move('left')
         break;
-      case 38:
-        game.move('up')
+      case 87:
+        game.hardDrop()
         break;
-      case 39:
+      case 68:
         game.move('right')
         break;
-      case 40:
+      case 83:
         game.move('down')
         break;
-      case 65:
+      case 39:
         if (down) return
         down = true
         game.rotate('left')
         break;
-      case 83:
+      case 37:
         if (down) return
         down = true
         game.rotate('right')
@@ -331,7 +339,7 @@ const bindKeys = (game) => {
 
 
 class Piece {
-  constructor(type, ctx, img, board , x = 3, rot = 0) {
+  constructor(type, ctx, img, board , x = 3, rot = 48) {
     this.type = type
     this.ctx = ctx
     this.img = img
@@ -415,6 +423,9 @@ class Game{
     this._fillPieceQueue();
     this.sendNewPiece();
     this.board.draw();
+    setInterval( ()=> {
+      this.move('down')
+    }, 1500)
   }
 
   move(dir){
@@ -425,6 +436,11 @@ class Game{
   rotate(dir){
     this.ctx.game.clearRect(0,0, 320, 640)
     this.board.rotatePiece(dir)
+  }
+
+  hardDrop(){
+    this.ctx.game.clearRect(0,0, 320, 640)
+    this.board.hardDrop()
   }
 
   holdPiece(){
@@ -475,6 +491,7 @@ class Game{
     this.currentPiece.y = 0
     this.heldPiece.x = 3
     this.currentPiece.x = 3
+    this.currentPiece.rotation = 48
     this.currentPiece.setBlocks();
   }
   _drawHeldPiece(){
