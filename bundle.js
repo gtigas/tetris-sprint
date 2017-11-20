@@ -354,9 +354,11 @@ class Board {
   _gameOver(){
     const blocks = this.currentPiece.blocks
     if (blocks.some( ([col, row]) => this.getSquare([col, row]))){
+      console.log(this.game.time);
       return 'lost'
 
     } else if (this.game.clearedLines >= 40) {
+      this.game.stopTimer()
       return 'won'
     }
   }
@@ -390,6 +392,7 @@ class Board {
         this.grid.splice(idx , 1)
         this.grid.unshift(new Array(10))
         this.game.clearedLines++
+        this.game.updateLinesRemaining();
         console.log(this.game.clearedLines)
       }
     });
@@ -498,6 +501,8 @@ class Game{
     this.heldPiece = null
     this.swapped = false
     this._fillPieceQueue();
+    this.updateLinesRemaining();
+    this.stopTimer = this._drawTimer();
     this.sendNewPiece();
     this.board.draw();
   }
@@ -589,6 +594,26 @@ class Game{
     ctx.clearRect(0,0,128,128)
     const held = new __WEBPACK_IMPORTED_MODULE_2__pieces_preview__["a" /* default */](ctx, this.heldPiece)
     held.draw();
+  }
+
+  updateLinesRemaining(){
+    document.getElementById('lines-remaining')
+                      .innerHTML = Math.max(0, 40 - this.clearedLines)
+  }
+
+  _drawTimer(){
+    const start = new Date().getTime()
+    let elapsed = '0.0'
+    const timer = setInterval( () => {
+      let time = new Date().getTime() - start
+      elapsed = Math.floor(time / 100) / 10
+      if (Math.round(elapsed) == elapsed) {
+        elapsed += '.0'
+      }
+      this.time = elapsed
+      document.getElementById('timer').innerHTML = elapsed + 's'
+    })
+    return () => { clearInterval(timer) }
   }
 
   _fillPieceQueue(){

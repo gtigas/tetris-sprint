@@ -1,4 +1,4 @@
-h1 {
+h1, h2, h3 {
   color: white;
   font-family: 'Sarpanch', sans-serif;
   text-align: center;
@@ -6,6 +6,17 @@ h1 {
   -webkit-text-stroke: 2px black;
   margin: 0;
   margin-bottom: 20px;
+  font-weight: 900
+}
+h2, h3 {
+  font-size: 30px;
+  -webkit-text-stroke: 0;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+h3 {
+  font-size: 40px;
 }
 
 canvas {

@@ -5,17 +5,25 @@
     <title></title>
     <script src="bundle.js" charset="utf-8"></script>
     <link rel="stylesheet" href="./assets/styles/master.css">
-    <link href="https://fonts.googleapis.com/css?family=Sarpanch:900" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Sarpanch:700,900" rel="stylesheet">
   </head>
   <body>
     <h1>Tetris Sprint</h1>
     <div class="game-container">
-      <canvas id="hold" width="128" height="64"></canvas>
+      <div class="">
+        <h2>Hold</h2>
+        <canvas id="hold" width="128" height="64"></canvas>
+        <h2>Timer</h2>
+        <h2 id='timer'>0.0</h2>
+      </div>
       <canvas id="game" width="320" height="640"></canvas>
       <div class="previews">
+        <h2>Next</h2>
         <canvas id="preview1" width="128" height="64"></canvas>
         <canvas id="preview2" width="128" height="64"></canvas>
         <canvas id="preview3" width="128" height="64"></canvas>
+        <h2>Lines Remaining</h2>
+        <h3 id='lines-remaining'></h3>
       </div>
     </div>
 
