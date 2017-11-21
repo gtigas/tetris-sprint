@@ -218,6 +218,7 @@ class Board {
 
 
   draw() {
+    this._drawGrid();
     this.currentPiece.draw()
     this._showPreview()
     const allSquares = [].concat(...this.grid)
@@ -320,7 +321,7 @@ class Board {
       previewPiece.y = this.currentPiece.y
       previewPiece.setBlocks();
     }
-    this.ctx.globalAlpha= 0.5
+    this.ctx.globalAlpha= 0.6
     previewPiece.draw()
     this.ctx.globalAlpha= 1
   }
@@ -408,6 +409,24 @@ class Board {
       if (row[i] === undefined) fullRow = false
     }
     return fullRow
+  }
+
+  _drawGrid(){
+    const ctx = this.ctx
+    ctx.strokeStyle = "white"
+    ctx.lineWidth = 0.5
+    for (var i = 1; i < 10; i++) {
+      ctx.beginPath();
+      ctx.moveTo(32 * i, 0);
+      ctx.lineTo(32 * i, 640);
+      ctx.stroke();
+    }
+    for (var j = 0; j < 20; j++) {
+      ctx.beginPath();
+      ctx.moveTo(0, 32 * j);
+      ctx.lineTo(320, 32 * j);
+      ctx.stroke();
+    }
   }
 
 
