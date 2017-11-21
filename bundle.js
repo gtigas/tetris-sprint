@@ -228,6 +228,11 @@ class Board {
     })
   }
 
+  clearSquares(){
+    this._generateGrid();
+    this.currentPiece = null;
+  }
+
   hardDrop(){
     while (!this._hitBottomOrPiece(this.currentPiece)) {
       this.currentPiece.move('down')
@@ -355,7 +360,6 @@ class Board {
   _gameOver(){
     const blocks = this.currentPiece.blocks
     if (blocks.some( ([col, row]) => this.getSquare([col, row]))){
-      console.log(this.game.time);
       return 'lost'
 
     } else if (this.game.clearedLines >= 40) {
@@ -394,7 +398,6 @@ class Board {
         this.grid.unshift(new Array(10))
         this.game.clearedLines++
         this.game.updateLinesRemaining();
-        console.log(this.game.clearedLines)
       }
     });
   }
@@ -524,6 +527,23 @@ class Game{
     this.stopTimer = this._drawTimer();
     this.sendNewPiece();
     this.board.draw();
+  }
+
+  restart(){
+    clearInterval(this.tick)
+    this.ctx.game.clearRect(0,0, 320, 640)
+    this.ctx.hold.clearRect(0,0, 320, 640)
+    this.clearedLines = 0
+    this.pieceQueue = []
+    this._fillPieceQueue();
+    this.updateLinesRemaining();
+    this.stopTimer();
+    this.stopTimer = this._drawTimer();
+    this.heldPiece = null
+    this.board.clearSquares();
+    this.sendNewPiece();
+    this.board.draw();
+    this.play()
   }
 
   play(){
@@ -728,6 +748,9 @@ const bindKeys = (game) => {
         break;
       case 16:
         game.holdPiece();
+        break;
+      case 82:
+        game.restart();
         break;
     }
   })
