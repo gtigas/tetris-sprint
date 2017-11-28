@@ -533,6 +533,8 @@ class Game{
 
   restart(){
     clearInterval(this.tick)
+    this.unbindKeys()
+    this.keysBound = false
     this.ctx.game.clearRect(0,0, 320, 640)
     this.ctx.hold.clearRect(0,0, 320, 640)
     this.clearedLines = 0
@@ -549,10 +551,12 @@ class Game{
 
   play(){
     this._countdownTimer();
+    this._drawPreview();
     setTimeout( () => {
       this.ctx.game.clearRect(0, 200, 640, 300)
       if (!this.keysBound) {
-        Object(__WEBPACK_IMPORTED_MODULE_3__binders__["a" /* default */])(this);
+        if (this.unbindKeys) { this.unbindKeys() }
+        this.unbindKeys = Object(__WEBPACK_IMPORTED_MODULE_3__binders__["a" /* default */])(this);
         this.keysBound = true
       }
       this.stopTimer = this._drawTimer();
@@ -822,8 +826,11 @@ const bindKeys = (game) => {
     }
   }
 
-  let currentConfig = configs["1"]
+  document.removeEventListener("keydown", configs["1"])
+  document.removeEventListener("keydown", configs["2"])
+  let currentConfig = configs[$("input[name='config']:checked").val()]
   document.addEventListener("keydown", currentConfig)
+  $(".close-controls").off("click")
   $(".close-controls").on("click", () => {
     document.removeEventListener("keydown", currentConfig)
     currentConfig = configs[$("input[name='config']:checked").val()]
@@ -833,6 +840,10 @@ const bindKeys = (game) => {
   document.addEventListener('keyup', function () {
     down = false;
   }, false);
+  return () => {
+    document.removeEventListener("keydown", configs["1"])
+    document.removeEventListener("keydown", configs["2"])
+  }
 }
 
 
