@@ -416,7 +416,7 @@ class Board {
 
   _drawGrid(){
     const ctx = this.ctx
-    ctx.strokeStyle = "white"
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)'
     ctx.lineWidth = 0.5
     for (var i = 1; i < 10; i++) {
       ctx.beginPath();
@@ -719,7 +719,7 @@ class PreviewPiece {
 const bindKeys = (game) => {
   let down = false
   const configs = {
-    "1" : (e) => {
+    "2" : (e) => {
       switch (e.keyCode) {
         case 37:
           game.move('left')
@@ -751,7 +751,7 @@ const bindKeys = (game) => {
           break;
       }
     },
-    "2": (e) => {
+    "1": (e) => {
       switch (e.keyCode) {
         case 65:
           game.move('left')
@@ -784,8 +784,6 @@ const bindKeys = (game) => {
       }
     }
   }
-
-
 
   let currentConfig = configs["1"]
   document.addEventListener("keydown", currentConfig)
