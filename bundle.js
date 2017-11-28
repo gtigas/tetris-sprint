@@ -360,6 +360,7 @@ class Board {
   _gameOver(){
     const blocks = this.currentPiece.blocks
     if (blocks.some( ([col, row]) => this.getSquare([col, row]))){
+      this.game.stopTimer()
       return 'lost'
 
     } else if (this.game.clearedLines >= 40) {
@@ -446,7 +447,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__board__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__pieces_piece__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__game__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__binders__ = __webpack_require__(7);
 
 
 
@@ -468,15 +468,12 @@ document.addEventListener("DOMContentLoaded", () =>{
   blocks.src = "assets/images/blocks.png"
   blocks.onload = () => {
     const game = new __WEBPACK_IMPORTED_MODULE_2__game__["a" /* default */](ctx, blocks)
-    Object(__WEBPACK_IMPORTED_MODULE_3__binders__["a" /* default */])(game);
     game.play()
   }
   $(".open-controls").on("click", () => {
     $(".controls").toggleClass("hidden")
   })
-  $(".close-controls").on("click", () => {
-    $(".controls").addClass("hidden")
-  })
+
 });
 
 
@@ -514,6 +511,8 @@ class Square {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__board__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__pieces_piece__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__pieces_preview__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__binders__ = __webpack_require__(7);
+
 
 
 
@@ -530,9 +529,6 @@ class Game{
     this.swapped = false
     this._fillPieceQueue();
     this.updateLinesRemaining();
-    this.stopTimer = this._drawTimer();
-    this.sendNewPiece();
-    this.board.draw();
   }
 
   restart(){
@@ -544,18 +540,28 @@ class Game{
     this._fillPieceQueue();
     this.updateLinesRemaining();
     this.stopTimer();
-    this.stopTimer = this._drawTimer();
     this.heldPiece = null
     this.board.clearSquares();
     this.sendNewPiece();
-    this.board.draw();
+    document.getElementById('timer').innerHTML = '0.0s'
     this.play()
   }
 
   play(){
-    this.tick = setInterval( ()=> {
-      this.move('down')
-    }, 1500)
+    this._countdownTimer();
+    setTimeout( () => {
+      this.ctx.game.clearRect(0, 200, 640, 300)
+      if (!this.keysBound) {
+        Object(__WEBPACK_IMPORTED_MODULE_3__binders__["a" /* default */])(this);
+        this.keysBound = true
+      }
+      this.stopTimer = this._drawTimer();
+      this.sendNewPiece();
+      this.board.draw();
+      this.tick = setInterval( ()=> {
+        this.move('down')
+      }, 1500)
+    }, 4000)
   }
 
   lose(){
@@ -624,6 +630,37 @@ class Game{
     first.draw();
     second.draw();
     third.draw();
+  }
+
+  _countdownTimer(i = 3){
+    if (i === 0) {
+      setTimeout( () => {
+        this.ctx.game.fillStyle = "black"
+        this.ctx.game.fillRect(0, 200, 640, 100)
+        this.ctx.game.fillStyle = "yellow"
+        this.ctx.game.font = "60px Sarpanch"
+        this.ctx.game.fillText('Start!', 75,270)
+      }, 1000)
+      return
+    } else if (i === 3) {
+      this._drawCountdown(i)
+      i--
+      this._countdownTimer(i)
+    } else {
+      setTimeout( () => {
+        this._drawCountdown(i)
+        i--
+        this._countdownTimer(i)
+      }, 1000)
+    }
+  }
+
+  _drawCountdown(i){
+    this.ctx.game.fillStyle = "black"
+    this.ctx.game.fillRect(0, 200, 640, 100)
+    this.ctx.game.fillStyle = "yellow"
+    this.ctx.game.font = "60px Sarpanch"
+    this.ctx.game.fillText(i, 135,270)
   }
 
   _resetPositions(){
