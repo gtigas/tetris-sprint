@@ -1,0 +1,117 @@
+@import url("https://fonts.googleapis.com/css?family=Barlow+Semi+Condensed");
+$font: 'Barlow Semi Condensed';
+
+h1, h2, h3 {
+  color: white;
+  font-family: 'Sarpanch', sans-serif;
+  text-align: center;
+  font-size: 50px;
+  -webkit-text-stroke: 2px black;
+  margin: 0;
+  margin-bottom: 20px;
+  font-weight: 900
+}
+
+h2, h3 {
+  font-size: 30px;
+  -webkit-text-stroke: 0;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+h3 {
+  font-size: 40px;
+}
+
+h5 {
+  font-size: 20px;
+  margin: 0;
+  padding: 0;
+  font-family: $font;
+}
+canvas {
+  background-color: rgba(3, 31, 76, .6);
+  margin: 0 10px;
+  border: 2px solid white;
+}
+
+input[type="radio"] {
+  display: none;
+  &:checked + .radio-box {
+    // background-color: #007e90;
+    color: black;
+    border: 5px solid rgba(3, 31, 76, .6);
+  }
+}
+
+.pos-rel {
+  position: relative;
+}
+
+.previews {
+  display: flex;
+  flex-direction: column;
+  canvas {
+    padding: 20px;
+    border-bottom: none;
+    &:last-of-type {
+      border-bottom: 2px solid white
+    }
+  }
+}
+
+#hold {
+  padding: 20px;
+}
+.game-container {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  margin: 0 auto;
+  width: 722px;
+}
+
+.controls {
+  width: 300px;
+  height: 300px;
+  background-color: white;
+  position: absolute;
+  top: -50px;
+  left: 103px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.config-buttons {
+  display: flex;
+  flex-direction: row;
+}
+
+.hidden {
+  display: none;
+}
+
+.radio-box {
+  border: 5px solid lightgrey;
+  text-align: center;
+  color: lightgrey;
+  width: 80px;
+  height: 30px;
+  background-color: white;
+  transition: all 250ms ease;
+  will-change: transition;
+  &:hover {
+    cursor: pointer;
+  }
+  &:active {
+    transform: translateY(5px);
+  }
+}
+
+body {
+  background: #485563;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #29323c, #485563);  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #29323c, #485563); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+}
