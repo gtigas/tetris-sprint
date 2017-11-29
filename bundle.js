@@ -447,6 +447,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__board__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__pieces_piece__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__game__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__binders__ = __webpack_require__(7);
+
 
 
 
@@ -459,6 +461,7 @@ document.addEventListener("DOMContentLoaded", () =>{
   const preview2 = document.getElementById("preview2");
   const preview3 = document.getElementById("preview3");
   const ctx = {};
+
   ctx.game = game.getContext("2d");
   ctx.hold = hold.getContext("2d");
   ctx.preview1 = preview1.getContext("2d");
@@ -470,6 +473,15 @@ document.addEventListener("DOMContentLoaded", () =>{
     const game = new __WEBPACK_IMPORTED_MODULE_2__game__["a" /* default */](ctx, blocks)
     game.play()
   }
+  $(".radio-box").click((e) => {
+    let config;
+    if (e.target.innerText.includes("1")) {
+      config = "1"
+    } else {
+      config = "2"
+    }
+    Object(__WEBPACK_IMPORTED_MODULE_3__binders__["b" /* setControlText */])(config)
+  })
   $(".open-controls").on("click", () => {
     $(".controls").toggleClass("hidden")
   })
@@ -556,7 +568,7 @@ class Game{
       this.ctx.game.clearRect(0, 200, 640, 300)
       if (!this.keysBound) {
         if (this.unbindKeys) { this.unbindKeys() }
-        this.unbindKeys = Object(__WEBPACK_IMPORTED_MODULE_3__binders__["a" /* default */])(this);
+        this.unbindKeys = Object(__WEBPACK_IMPORTED_MODULE_3__binders__["a" /* bindKeys */])(this);
         this.keysBound = true
       }
       this.stopTimer = this._drawTimer();
@@ -757,6 +769,7 @@ class PreviewPiece {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony export (immutable) */ __webpack_exports__["b"] = setControlText;
 const bindKeys = (game) => {
   let down = false
   const configs = {
@@ -829,12 +842,14 @@ const bindKeys = (game) => {
   document.removeEventListener("keydown", configs["1"])
   document.removeEventListener("keydown", configs["2"])
   let currentConfig = configs[$("input[name='config']:checked").val()]
+  setControlText($("input[name='config']:checked").val())
   document.addEventListener("keydown", currentConfig)
   $(".close-controls").off("click")
   $(".close-controls").on("click", () => {
     document.removeEventListener("keydown", currentConfig)
     currentConfig = configs[$("input[name='config']:checked").val()]
     document.addEventListener("keydown", currentConfig)
+    setControlText($("input[name='config']:checked").val())
     $(".controls").addClass("hidden")
   })
   document.addEventListener('keyup', function () {
@@ -845,9 +860,38 @@ const bindKeys = (game) => {
     document.removeEventListener("keydown", configs["2"])
   }
 }
+/* harmony export (immutable) */ __webpack_exports__["a"] = bindKeys;
 
 
-/* harmony default export */ __webpack_exports__["a"] = (bindKeys);
+function setControlText(config) {
+  const controls = configsText[config]
+  Object.keys(controls).forEach( key => {
+    document.getElementById(key).innerHTML = controls[key]
+  })
+}
+
+const configsText = {
+  "1" : {
+    "left": "A",
+    "right": "D",
+    "down": "S",
+    "hard": "W",
+    "rot-left": "Left-Arrow",
+    "rot-right": "Right-Arrow",
+    "piece-hold": "Shift",
+    "restart": "R",
+  },
+  "2" : {
+    "left": "Left-Arrow",
+    "right": "Right-Arrow",
+    "down": "Down-Arrow",
+    "hard": "Spacebar",
+    "rot-left": "Z",
+    "rot-right": "X",
+    "piece-hold": "C",
+    "restart": "R",
+  },
+}
 
 
 /***/ })
