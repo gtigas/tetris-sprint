@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 4);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -201,7 +201,7 @@ class Piece {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__pieces_square__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__pieces_square__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__pieces_piece__ = __webpack_require__(1);
 
 
@@ -217,14 +217,16 @@ class Board {
   }
 
 
-  draw() {
+  draw(lost = false) {
     this._drawGrid();
-    this.currentPiece.draw()
-    this._showPreview()
+    if (!lost) {
+      this.currentPiece.draw()
+      this._showPreview()
+    }
     const allSquares = [].concat(...this.grid)
     allSquares.forEach( square => {
       if (square === undefined) return;
-      square.draw();
+      square.draw(lost);
     })
   }
 
@@ -238,10 +240,10 @@ class Board {
       this.currentPiece.move('down')
     }
     this._setPiece()
-    if (this._gameOver() === 'lost') {
+    if (this._checkGameOver() === 'lost') {
       this.game.lose();
       return
-    } else if (this._gameOver() === 'won') {
+    } else if (this._checkGameOver() === 'won') {
       this.game.won();
       return
     }
@@ -265,13 +267,6 @@ class Board {
         }
         break;
       }
-    if (this._gameOver() === 'lost') {
-      this.game.lose();
-      return
-    } else if (this._gameOver() === 'won') {
-      this.game.won();
-      return
-    }
     this.draw();
   }
 
@@ -343,6 +338,16 @@ class Board {
     ))
   }
 
+  _animateGameOver(i = 20){
+    if (i < 0) { return }
+    for (var j = 0; j < 10; j++) {
+      this.ctx.drawImage(this.img, 0 , 0, 32, 32, j * 32, i * 32, 32, 32)
+    }
+    setTimeout( () => {
+      this._animateGameOver(i - 1)
+    }, 30)
+  }
+
   _invalidRotation(){
     const blocks = this.currentPiece.blocks
     const inBounds = blocks.every( ([col, row]) => (
@@ -357,14 +362,18 @@ class Board {
     return false
   }
 
-  _gameOver(){
+  _checkGameOver(){
     const blocks = this.currentPiece.blocks
     if (blocks.some( ([col, row]) => this.getSquare([col, row]))){
       this.game.stopTimer()
+      this.draw(true)
+      this._animateGameOver()
       return 'lost'
 
     } else if (this.game.clearedLines >= 40) {
       this.game.stopTimer()
+      this.draw(true)
+      this._animateGameOver()
       return 'won'
     }
   }
@@ -443,11 +452,146 @@ class Board {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony export (immutable) */ __webpack_exports__["b"] = setControlText;
+const bindKeys = (game) => {
+  let down = false
+  const configs = {
+    "2" : (e) => {
+      switch (e.keyCode) {
+        case 37:
+          game.move('left')
+          break;
+        case 32:
+          game.hardDrop()
+          break;
+        case 39:
+          game.move('right')
+          break;
+        case 40:
+          game.move('down')
+          break;
+        case 90:
+          if (down) return
+          down = true
+          game.rotate('left')
+          break;
+        case 88:
+          if (down) return
+          down = true
+          game.rotate('right')
+          break;
+        case 67:
+          game.holdPiece();
+          break;
+        case 82:
+          game.restart();
+          break;
+      }
+    },
+    "1": (e) => {
+      switch (e.keyCode) {
+        case 65:
+          game.move('left')
+          break;
+        case 87:
+          game.hardDrop()
+          break;
+        case 68:
+          game.move('right')
+          break;
+        case 83:
+          game.move('down')
+          break;
+        case 39:
+          if (down) return
+          down = true
+          game.rotate('left')
+          break;
+        case 37:
+          if (down) return
+          down = true
+          game.rotate('right')
+          break;
+        case 16:
+          game.holdPiece();
+          break;
+        case 82:
+          game.restart();
+          break;
+      }
+    }
+  }
+
+  document.removeEventListener("keydown", configs["1"])
+  document.removeEventListener("keydown", configs["2"])
+  let currentConfig = configs[$("input[name='config']:checked").val()]
+  setControlText($("input[name='config']:checked").val())
+  document.addEventListener("keydown", currentConfig)
+  $(".close-controls").off("click")
+  $(".close-controls").on("click", () => {
+    document.removeEventListener("keydown", currentConfig)
+    currentConfig = configs[$("input[name='config']:checked").val()]
+    document.addEventListener("keydown", currentConfig)
+    setControlText($("input[name='config']:checked").val())
+    $(".controls").addClass("hidden")
+  })
+  document.addEventListener('keyup', function () {
+    down = false;
+  }, false);
+  return () => {
+    document.removeEventListener("keydown", configs["1"])
+    document.removeEventListener("keydown", configs["2"])
+    document.addEventListener("keydown", (e) => {
+      if (e.keyCode === 82) {
+        game.restart();
+      }
+    })
+  }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = bindKeys;
+
+
+function setControlText(config) {
+  const controls = configsText[config]
+  Object.keys(controls).forEach( key => {
+    document.getElementById(key).innerHTML = controls[key]
+  })
+}
+
+const configsText = {
+  "1" : {
+    "left": "A",
+    "right": "D",
+    "down": "S",
+    "hard": "W",
+    "rot-left": "Left-Arrow",
+    "rot-right": "Right-Arrow",
+    "piece-hold": "Shift",
+    "restart": "R",
+  },
+  "2" : {
+    "left": "Left-Arrow",
+    "right": "Right-Arrow",
+    "down": "Down-Arrow",
+    "hard": "Spacebar",
+    "rot-left": "Z",
+    "rot-right": "X",
+    "piece-hold": "C",
+    "restart": "R",
+  },
+}
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__board__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__pieces_piece__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__game__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__binders__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__game__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__binders__ = __webpack_require__(3);
 
 
 
@@ -490,7 +634,7 @@ document.addEventListener("DOMContentLoaded", () =>{
 
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -506,9 +650,10 @@ class Square {
     this.colorOffset = __WEBPACK_IMPORTED_MODULE_0__util__["b" /* PIECE_COLOR_OFFSETS */][type]
   }
 
-  draw() {
+  draw(lost) {
     const renderPos = [this.pos[1] * 32, this.pos[0] * 32]
-    this.ctx.drawImage(this.img, this.colorOffset , 0, 32, 32, ...renderPos, 32, 32)
+    const colorOffset = lost ? 0 : this.colorOffset
+    this.ctx.drawImage(this.img, colorOffset , 0, 32, 32, ...renderPos, 32, 32)
   }
 }
 
@@ -516,14 +661,14 @@ class Square {
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__board__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__pieces_piece__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__pieces_preview__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__binders__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__pieces_preview__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__binders__ = __webpack_require__(3);
 
 
 
@@ -582,12 +727,14 @@ class Game{
 
   lose(){
     clearInterval(this.tick)
-    alert('you lose')
+    this.unbindKeys()
+    this.keysBound = false
   }
 
   won(){
     clearInterval(this.tick)
-    alert('you win')
+    this.unbindKeys()
+    this.keysBound = false
   }
 
   move(dir){
@@ -732,7 +879,7 @@ class Game{
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -762,136 +909,6 @@ class PreviewPiece {
 }
 
 /* harmony default export */ __webpack_exports__["a"] = (PreviewPiece);
-
-
-/***/ }),
-/* 7 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (immutable) */ __webpack_exports__["b"] = setControlText;
-const bindKeys = (game) => {
-  let down = false
-  const configs = {
-    "2" : (e) => {
-      switch (e.keyCode) {
-        case 37:
-          game.move('left')
-          break;
-        case 32:
-          game.hardDrop()
-          break;
-        case 39:
-          game.move('right')
-          break;
-        case 40:
-          game.move('down')
-          break;
-        case 90:
-          if (down) return
-          down = true
-          game.rotate('left')
-          break;
-        case 88:
-          if (down) return
-          down = true
-          game.rotate('right')
-          break;
-        case 67:
-          game.holdPiece();
-          break;
-        case 82:
-          game.restart();
-          break;
-      }
-    },
-    "1": (e) => {
-      switch (e.keyCode) {
-        case 65:
-          game.move('left')
-          break;
-        case 87:
-          game.hardDrop()
-          break;
-        case 68:
-          game.move('right')
-          break;
-        case 83:
-          game.move('down')
-          break;
-        case 39:
-          if (down) return
-          down = true
-          game.rotate('left')
-          break;
-        case 37:
-          if (down) return
-          down = true
-          game.rotate('right')
-          break;
-        case 16:
-          game.holdPiece();
-          break;
-        case 82:
-          game.restart();
-          break;
-      }
-    }
-  }
-
-  document.removeEventListener("keydown", configs["1"])
-  document.removeEventListener("keydown", configs["2"])
-  let currentConfig = configs[$("input[name='config']:checked").val()]
-  setControlText($("input[name='config']:checked").val())
-  document.addEventListener("keydown", currentConfig)
-  $(".close-controls").off("click")
-  $(".close-controls").on("click", () => {
-    document.removeEventListener("keydown", currentConfig)
-    currentConfig = configs[$("input[name='config']:checked").val()]
-    document.addEventListener("keydown", currentConfig)
-    setControlText($("input[name='config']:checked").val())
-    $(".controls").addClass("hidden")
-  })
-  document.addEventListener('keyup', function () {
-    down = false;
-  }, false);
-  return () => {
-    document.removeEventListener("keydown", configs["1"])
-    document.removeEventListener("keydown", configs["2"])
-  }
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = bindKeys;
-
-
-function setControlText(config) {
-  const controls = configsText[config]
-  Object.keys(controls).forEach( key => {
-    document.getElementById(key).innerHTML = controls[key]
-  })
-}
-
-const configsText = {
-  "1" : {
-    "left": "A",
-    "right": "D",
-    "down": "S",
-    "hard": "W",
-    "rot-left": "Left-Arrow",
-    "rot-right": "Right-Arrow",
-    "piece-hold": "Shift",
-    "restart": "R",
-  },
-  "2" : {
-    "left": "Left-Arrow",
-    "right": "Right-Arrow",
-    "down": "Down-Arrow",
-    "hard": "Spacebar",
-    "rot-left": "Z",
-    "rot-right": "X",
-    "piece-hold": "C",
-    "restart": "R",
-  },
-}
 
 
 /***/ })
