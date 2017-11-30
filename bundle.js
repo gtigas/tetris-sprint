@@ -267,6 +267,13 @@ class Board {
         }
         break;
       }
+    if (this._checkGameOver() === 'lost') {
+      this.game.lose();
+      return
+    } else if (this._checkGameOver() === 'won') {
+      this.game.won();
+      return
+    }
     this.draw();
   }
 
@@ -483,9 +490,6 @@ const bindKeys = (game) => {
         case 67:
           game.holdPiece();
           break;
-        case 82:
-          game.restart();
-          break;
       }
     },
     "1": (e) => {
@@ -515,9 +519,6 @@ const bindKeys = (game) => {
         case 16:
           game.holdPiece();
           break;
-        case 82:
-          game.restart();
-          break;
       }
     }
   }
@@ -541,11 +542,6 @@ const bindKeys = (game) => {
   return () => {
     document.removeEventListener("keydown", configs["1"])
     document.removeEventListener("keydown", configs["2"])
-    document.addEventListener("keydown", (e) => {
-      if (e.keyCode === 82) {
-        game.restart();
-      }
-    })
   }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = bindKeys;
@@ -557,6 +553,16 @@ function setControlText(config) {
     document.getElementById(key).innerHTML = controls[key]
   })
 }
+
+const setRestart = (game) => {
+  document.addEventListener("keydown", (e) => {
+    if (e.keyCode === 82) {
+      game.restart();
+    }
+  })
+}
+/* harmony export (immutable) */ __webpack_exports__["c"] = setRestart;
+
 
 const configsText = {
   "1" : {
@@ -616,7 +622,9 @@ document.addEventListener("DOMContentLoaded", () =>{
   blocks.onload = () => {
     const game = new __WEBPACK_IMPORTED_MODULE_2__game__["a" /* default */](ctx, blocks)
     game.play()
+    Object(__WEBPACK_IMPORTED_MODULE_3__binders__["c" /* setRestart */])(game)
   }
+
   $(".radio-box").click((e) => {
     let config;
     if (e.target.innerText.includes("1")) {
