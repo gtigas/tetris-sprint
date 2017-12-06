@@ -621,8 +621,11 @@ document.addEventListener("DOMContentLoaded", () =>{
   blocks.src = "assets/images/blocks.png"
   blocks.onload = () => {
     const game = new __WEBPACK_IMPORTED_MODULE_2__game__["a" /* default */](ctx, blocks)
-    game.play()
-    Object(__WEBPACK_IMPORTED_MODULE_3__binders__["c" /* setRestart */])(game)
+    $("#start-click").on("click", () => {
+      $(".start").addClass("hidden")
+      game.play()
+      Object(__WEBPACK_IMPORTED_MODULE_3__binders__["c" /* setRestart */])(game)
+    })
   }
 
   $(".radio-box").click((e) => {
@@ -718,6 +721,7 @@ class Game{
     this._countdownTimer();
     this._drawPreview();
     setTimeout( () => {
+      $(".open-controls").toggleClass("hidden")
       this.ctx.game.clearRect(0, 200, 640, 300)
       if (!this.keysBound) {
         if (this.unbindKeys) { this.unbindKeys() }

@@ -41,6 +41,11 @@ input[type="radio"] {
 .pos-rel {
   position: relative; }
 
+.left {
+  display: flex;
+  flex-direction: column;
+  align-items: center; }
+
 .previews {
   display: flex;
   flex-direction: column; }
@@ -54,6 +59,7 @@ input[type="radio"] {
   padding: 20px; }
 
 .game-container {
+  position: relative;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
@@ -86,10 +92,7 @@ input[type="radio"] {
   display: flex;
   flex-direction: row; }
 
-.hidden {
-  display: none; }
-
-.radio-box {
+.radio-box, button {
   border: 5px solid lightgrey;
   text-align: center;
   color: lightgrey;
@@ -98,10 +101,32 @@ input[type="radio"] {
   background-color: white;
   transition: all 250ms ease;
   will-change: transition; }
-  .radio-box:hover {
+  .radio-box:hover, button:hover {
     cursor: pointer; }
-  .radio-box:active {
+  .radio-box:active, button:active {
     transform: translateY(5px); }
+
+button {
+  transition: none;
+  border: 5px solid black; }
+  button:active {
+    transform: none; }
+
+.start {
+  display: block;
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.7);
+  width: 320px;
+  height: 400px;
+  z-index: 2;
+  left: 204px;
+  top: 98px; }
+
+#start-click:hover {
+  cursor: pointer; }
+
+.directions, h4 {
+  color: white; }
 
 body {
   background: #485563;
@@ -110,5 +135,8 @@ body {
   /* Chrome 10-25, Safari 5.1-6 */
   background: linear-gradient(to right, #29323c, #485563);
   /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */ }
+
+.hidden {
+  display: none; }
 
 /*# sourceMappingURL=master.css.map */

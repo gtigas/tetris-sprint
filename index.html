@@ -11,7 +11,7 @@
   <body>
     <h1>Tetris Sprint</h1>
     <div class="game-container">
-      <div class="">
+      <div class="left">
         <h2>Hold</h2>
         <canvas id="hold" width="128" height="64"></canvas>
         <h2>Timer</h2>
@@ -70,8 +70,12 @@
             <button class="close-controls">Save and Close</button>
           </div>
 
-          <button class="open-controls">Controls</button>
+          <button class="open-controls hidden">Controls</button>
         </div>
+      </div>
+      <div class="start">
+        <p class="directions">How fast can you clear 40 lines?</p>
+        <h4>Click <strong id="start-click">Here</strong> To Start!</h4>
       </div>
       <canvas id="game" width="320" height="640"></canvas>
       <div class="previews">
