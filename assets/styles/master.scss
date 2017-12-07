@@ -12,6 +12,10 @@ h1, h2, h3 {
   font-weight: 900
 }
 
+h1 {
+  margin: 0;
+}
+
 h2, h3 {
   font-size: 30px;
   -webkit-text-stroke: 0;
@@ -81,6 +85,7 @@ input[type="radio"] {
   align-items: flex-start;
   margin: 0 auto;
   width: 722px;
+  margin-top: 20px;
 }
 
 .controls {
@@ -147,7 +152,7 @@ button {
   box-sizing: border-box;
   display: block;
   position: absolute;
-  background-color: rgba(0,0,0,0.7);
+  background-color: rgba(0,0,0,0.5);
   width: 320px;
   height: 110px;
   left: 204px;
@@ -181,12 +186,28 @@ button {
 }
 
 header {
-  background-color: black;
-  height: 30px;
+  background-color: rgba(0,0,0,0.5);
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid white;
+  padding: 0 10px;
   h4 {
-    margin: 0
+    font-size: 20px;
+    margin: 0;
   }
 }
+
+.links {
+  a {
+    color: white;
+    text-decoration: none;
+    font-size: 30px;
+  }
+}
+
 
 body {
   background: #485563;  /* fallback for old browsers */
