@@ -528,13 +528,11 @@ const bindKeys = (game) => {
   let currentConfig = configs[$("input[name='config']:checked").val()]
   setControlText($("input[name='config']:checked").val())
   document.addEventListener("keydown", currentConfig)
-  $(".close-controls").off("click")
   $(".close-controls").on("click", () => {
     document.removeEventListener("keydown", currentConfig)
     currentConfig = configs[$("input[name='config']:checked").val()]
     document.addEventListener("keydown", currentConfig)
     setControlText($("input[name='config']:checked").val())
-    $(".controls").addClass("hidden")
   })
   document.addEventListener('keyup', function () {
     down = false;
@@ -641,6 +639,10 @@ document.addEventListener("DOMContentLoaded", () =>{
     $(".controls").toggleClass("hidden")
   })
 
+  $(".close-controls").on("click", () => {
+    $(".controls").addClass("hidden")
+  })
+
 });
 
 
@@ -726,7 +728,6 @@ class Game{
     this._drawPreview();
     setTimeout( () => {
       this.waiting = false
-      $(".open-controls").removeClass("hidden")
       this.ctx.game.clearRect(0, 200, 640, 300)
       if (!this.keysBound) {
         if (this.unbindKeys) { this.unbindKeys() }
