@@ -36,7 +36,7 @@ input[type="radio"] {
   display: none; }
   input[type="radio"]:checked + .radio-box {
     color: black;
-    border: 5px solid rgba(3, 31, 76, 0.6); }
+    border: 3px solid rgba(3, 31, 76, 0.6); }
 
 .pos-rel {
   position: relative; }
@@ -93,7 +93,7 @@ input[type="radio"] {
   flex-direction: row; }
 
 .radio-box, button {
-  border: 5px solid lightgrey;
+  border: 3px solid lightgrey;
   text-align: center;
   color: lightgrey;
   width: 80px;
@@ -108,7 +108,9 @@ input[type="radio"] {
 
 button {
   transition: none;
-  border: 5px solid black; }
+  border: 3px solid black;
+  border-radius: 0;
+  color: black; }
   button:active {
     transform: none; }
 
@@ -124,6 +126,15 @@ button {
 
 #start-click:hover {
   cursor: pointer; }
+
+.close-controls, .open-controls {
+  width: 100%;
+  height: 100%;
+  padding: 5px 10px; }
+
+.close-controls {
+  margin: 15px 0;
+  width: 180px; }
 
 .directions, h4 {
   color: white; }
