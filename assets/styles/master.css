@@ -115,17 +115,21 @@ button {
     transform: none; }
 
 .start {
+  padding: 10px;
+  box-sizing: border-box;
   display: block;
   position: absolute;
   background-color: rgba(0, 0, 0, 0.7);
   width: 320px;
-  height: 400px;
+  height: 110px;
   z-index: 2;
   left: 204px;
-  top: 98px; }
+  top: 195px; }
 
-#start-click:hover {
-  cursor: pointer; }
+#start-click {
+  text-decoration: underline; }
+  #start-click:hover {
+    cursor: pointer; }
 
 .close-controls, .open-controls {
   width: 100%;
@@ -137,6 +141,8 @@ button {
   width: 180px; }
 
 .directions, h4 {
+  font-size: 20px;
+  font-family: "Barlow Semi Condensed";
   color: white; }
 
 body {

@@ -141,17 +141,20 @@ button {
 }
 
 .start {
+  padding: 10px;
+  box-sizing: border-box;
   display: block;
   position: absolute;
   background-color: rgba(0,0,0,0.7);
   width: 320px;
-  height: 400px;
+  height: 110px;
   z-index: 2;
   left: 204px;
-  top: 98px;
+  top: 195px;
 }
 
 #start-click {
+  text-decoration: underline;
   &:hover{
     cursor: pointer;
   }
@@ -171,6 +174,8 @@ button {
 }
 
 .directions, h4 {
+  font-size: 20px;
+  font-family: $font;
   color: white;
 }
 
